@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <title><%= titulo %></title>
+  <%- include("components/head") %>
+</head>
+
+<body>
+  <%- include("components/menu") %>
+
+  <main>
+    <header>
+      <h1>¡Saludos desde el <%= titulo %>!</h1>
+    </header>
+
+    <section>
+      <p style="text-align: center;">Ingresa tus credenciales para acceder</p>
+
+      <form>
+        <input type="email" id="email" name="email" placeholder="Email">
+        <input type="password" id="password" name="password" placeholder="Contraseña:">
+        <button type="submit">Iniciar Sesión</button>
+      </form>
+
+      <p id="mensaje" style="text-align: center;"></p>
+    </section>
+  </main>
+
+  <script>
+    // Interceptar el formulario para envío AJAX (opcional)
+    document.querySelector('form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const mensaje = document.getElementById('mensaje');
+
+      try {
+        const response = await fetch('/api/usuarios/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          mensaje.innerHTML = '<p style="color: green;">¡Login exitoso! Redirigiendo...</p>';
+          setTimeout(() => {
+            window.location.href = '/panel-control';
+          }, 1500);
+        } else {
+          const error = await response.text();
+          mensaje.innerHTML = '<p style="color: red;">Error: ' + error + '</p>';
+        }
+      } catch (error) {
+        mensaje.innerHTML = '<p style="color: red;">Error de conexión</p>';
+      }
+    });
+  </script>
+</body>
+
+</html>

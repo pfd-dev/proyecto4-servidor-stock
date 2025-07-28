@@ -1,0 +1,86 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  background-color: black;
+  color: whitesmoke;
+}
+
+nav ul {
+  background-color: #222;
+  margin-bottom: 3em;
+  padding: 1em;
+  display: flex;
+  gap: 3em;
+  list-style: none;
+  text-transform: uppercase;
+  box-shadow: 0 .5em .5em rgba(0, 0, 0, 0.1);
+
+  a {
+    color: royalblue;
+  }
+}
+
+main {
+  background-color: #222;
+  padding: 3em;
+  max-width: 800px;
+  border-radius: 8px;
+  box-shadow: 0 .5em .5em rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+
+  h1 {
+    text-align: center;
+  }
+}
+
+.formulario-edicion {
+  display: none;
+  background-color: whitesmoke;
+  color: black;
+  padding: 2em;
+  margin: 1em 0;
+  border-radius: .5em;
+}
+
+.formulario-edicion.activo {
+  display: block;
+}
+
+.botones-producto {
+  margin-top: 10px;
+}
+
+.botones-producto button,
+.botones-producto a {
+  margin-right: 10px;
+  padding: 5px 10px;
+  text-decoration: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-editar {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-eliminar {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-cancelar {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-guardar {
+  background-color: #28a745;
+  color: white;
+}

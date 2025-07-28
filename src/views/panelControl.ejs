@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <title><%= titulo %></title>
+  <%- include("components/head") %>
+</head>
+
+<body>
+  <%- include("components/menu") %>
+
+  <main>
+    <header>
+      <h1>¡Saludos desde el <%= titulo %>!</h1>
+    </header>
+
+    <section class="panel-info">
+      <h3>Funciones disponibles:</h3>
+      <ul>
+        <li>Gestión de productos</li>
+        <li>Administración de usuarios</li>
+        <li>Configuración del sistema</li>
+      </ul>
+    </section>
+  </main>
+</body>
+
+</html>

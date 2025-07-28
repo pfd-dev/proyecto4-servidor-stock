@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <title><%= titulo %></title>
+  <%- include("components/head") %>
+</head>
+
+<body>
+  <%- include("components/menu") %>
+
+  <main>
+    <header>
+      <h1>¡Saludos desde el <%= titulo %>!</h1>
+    </header>
+
+    <section>
+      <div class="message">
+        <h3>¡Hasta la vista!</h3>
+        <p>Tu sesión ha sido cerrada exitosamente.</p>
+        <p>Gracias por usar nuestra aplicación.</p>
+        <button id="logoutBtn" style="background-color: #c2185b; color: white; border: 1px solid #c2185b; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 0 15px;">
+          Cerrar Sesión Definitiva
+        </button>
+      </div>
+    </section>
+
+    <script>
+      // Hacer llamada automática al logout cuando se carga la página
+      // fetch('/api/usuarios/logout', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   }
+      // }).then(response => {
+      //   console.log('Sesión cerrada automáticamente');
+      // }).catch(error => {
+      //   console.log('Error al cerrar sesión:', error);
+      // });
+
+      // Botón para cerrar sesión manualmente
+      document.getElementById('logoutBtn').addEventListener('click', async function() {
+        try {
+          const response = await fetch('/api/usuarios/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+
+          if (response.ok) {
+            alert('Sesión cerrada exitosamente');
+            window.location.href = '/';
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      });
+    </script>
+
+</body>
+
+</html>
