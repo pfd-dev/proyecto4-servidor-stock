@@ -103,6 +103,15 @@ async function iniciarSesion(req, res) {
             // maxAge: 3600000, // 1 hora
         });
 
+        
+        // Guardar identificador del usuario en la sesión
+        req.session.userId = usuario._id.toString();
+        // req.session.save(function(err) {
+        //     if (err) {
+        //         console.error('Error guardando sesión:', err);
+        //     }
+        // });
+
         res.json({ mensaje: 'Sesión iniciada' });
     } catch (error) {
         console.error('Error al iniciar sesión:', error.message);

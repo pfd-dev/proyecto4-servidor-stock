@@ -4,11 +4,16 @@ import { productoModel } from "../models/productos.model.js";
 const enrutadorProductos = express.Router();
 
 // Obtener todos los productos
-enrutadorProductos.get("/", async (req, res) => {
+enrutadorProductos.post("/", async (req, res) => {
+    // res.header("Access-Control-Allow-Origin", "*"); // O especificá tu dominio
+    // res.header("Access-Control-Allow-Methods", "GET");
+    // res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
     try {
         const productos = await productoModel.find();
         res.status(200).json(productos);
     } catch (error) {
+        res.header()
         console.error("Error al obtener productos:", error);
         res.status(500).send("Ocurrió un error al obtener los productos.");
     }

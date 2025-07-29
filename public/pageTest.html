@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>productos de la base de datos</title>
+  <style>
+    body {
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background-color: whitesmoke;
+    }
+
+    .productos {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .producto {
+      background: white;
+      padding: 1rem;
+      border-radius: .5em;
+      box-shadow: 0 0 .5em rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 200px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>productos de la base de datos</h1>
+  <div class="productos" id="productos"></div>
+
+  <script>
+    const contenedor = document.getElementById("productos");
+
+    fetch(
+        "http://localhost:8080/api/productos", {
+          method: "POST"
+        })
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(p => {
+          const div = document.createElement("div");
+          div.className = "producto";
+          div.innerHTML = `
+            <h3>${p.name}</h3>
+            <p>Precio: $${p.precio}</p>
+            <p>Cantidad: ${p.cantidad}</p>
+            <button>Comprar</button>
+          `;
+
+          // Botón dinámico
+          const btn = div.querySelector("button");
+          btn.addEventListener("click", () => {
+            fetch("http://localhost:8080/api/compras", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(p)
+              })
+              .then(res => {
+                if (res.ok) {
+                  alert(`¡Compraste: ${p.name}!`);
+                } else {
+                  throw new Error("Error al realizar la compra");
+                }
+              })
+              .catch(err => {
+                console.error("Compra fallida:", err);
+                alert("Hubo un problema al comprar");
+              });
+          });
+          contenedor.appendChild(div);
+        });
+      })
+      .catch(err => {
+        contenedor.innerHTML = "<p>Error al cargar productos</p>";
+        console.error("Fetch error:", err);
+      });
+  </script>
+</body>
+
+</html>
