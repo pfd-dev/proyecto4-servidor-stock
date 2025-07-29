@@ -40,7 +40,7 @@ app.use('/api/productos', enrutadorProductos);
 
 // Middleware para capturar errores 404
 app.use((req, res, next) => {
-  next(createError(500));
+  next(createError(404));
 });
 
 // Middleware para manejo general de errores

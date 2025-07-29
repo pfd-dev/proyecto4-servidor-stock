@@ -14,6 +14,8 @@ function verificarToken(req, res, next) {
 
     try {
         const verificado = jwt.verify(token, JWT_SECRET);
+        console.log("verificar token")
+        console.log(verificado)
         req.usuario = verificado; // Guardamos los datos del token en la request
         next();
     } catch (error) {
@@ -86,9 +88,9 @@ async function iniciarSesion(req, res) {
     try {
         const { email, password } = req.body;
         const usuario = await usuarioModel.findOne({ email });
-        console.log(!usuario)
+        
         if (!usuario) return res.status(401).send('Credenciales inválidas');
-        console.log("si")
+
         const passwordValida = await bcrypt.compare(password, usuario.password);
         if (!passwordValida) return res.status(401).send('Credenciales inválidas');
 
@@ -107,7 +109,6 @@ async function iniciarSesion(req, res) {
         res.status(500).send('Error interno');
     }
 };
-
 
 async function cerrarSesion(req, res) {
     res.clearCookie('token');

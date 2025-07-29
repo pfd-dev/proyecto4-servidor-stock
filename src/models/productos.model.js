@@ -6,11 +6,11 @@ const productoSchema = mongoose.Schema(
             type: String,
             required: true,
         },
-        price: {
+        precio: {
             type: Number,
             required: true
         },
-        quantity: {
+        cantidad: {
             type: String,
             default: 0
         }

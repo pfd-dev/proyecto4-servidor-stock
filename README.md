@@ -1,11 +1,9 @@
 # proyecto4-servidor-stock
 
-- npx express-generator --ejs --git
+- generar app de express:  npx express-generator --ejs --git
 
-- npx npm-check-updates -u
+- actualizar todas dependencias: npx npm-check-updates -u
 
+- instalar paquetes: npm i bcrypt cors dotenv jsonwebtoken mongodb mongoose
 
-- npm i bcrypt cors dotenv jsonwebtoken mongodb mongoose
-
-
-- npm i nodemon -D
+- instalar dependencias de desarrollo: npm i -D nodemon jest supertest
