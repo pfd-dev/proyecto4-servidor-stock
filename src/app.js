@@ -1,12 +1,16 @@
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import MongoStore from 'connect-mongo';
 
 import express from 'express';
 import createError from 'http-errors';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import session from 'express-session';
+
+dotenv.config();
 
 import { enrutadorPaginas } from './routes/paginas.route.js';
 import { enrutadorUsuarios } from './routes/usuarios.route.js';
@@ -20,7 +24,7 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // Habilitar CORS para todas las rutas
-// app.use(cors());
+app.use(cors());
 
 app.use(express.json()); // Parseo de JSON en body
 app.use(express.urlencoded({ extended: false })); // Parseo de datos codificados en URL
@@ -28,15 +32,20 @@ app.use(cookieParser()); // Parseo de cookies
 
 // Configuración de express-session
 app.use(session({
-  name: 'sid',                        // nombre de la cookie de sesión
-  secret: 'tu_clave_secreta_sesion',  // guárdar en .env
+  name: 'nombreTokenSesion',                        // nombre de la cookie de sesión
+  secret: process.env.CLAVE_SESSION,  // guárdar en .env
   resave: false,                      // no volver a guardar si no hubo cambios
   saveUninitialized: false,           // no guardar sesión vacía
   cookie: {
-    maxAge: 2 * 60 * 1000,          // 2 minutos en milisegundos
+    maxAge: 3 * 60 * 1000,          // 3 minutos en milisegundos
     httpOnly: true,
     // secure: true,               // habilitar en HTTPS
-  }
+  },
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_CONNECT_URI,  // URL de tu base de datos MongoDB
+    collectionName: 'sesiones',       // Nombre de la colección en MongoDB
+    ttl: 60 * 5                       // Tiempo de vida en segundos (5 min)
+  }),
 }));
 
 // Configuración del motor de vistas y carpeta de vistas

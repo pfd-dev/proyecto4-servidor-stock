@@ -32,6 +32,10 @@ enrutadorPaginas.get('/iniciar-sesion', (req, res) => {
   res.render('inicioSesion', { titulo: 'pagina de iniciar sesion' });
 });
 
+enrutadorPaginas.get('/iniciar-sesion-bd', (req, res) => {
+  res.render('inicioSesionBD', { titulo: 'pagina de iniciar sesion con la base de datos.' });
+});
+
 enrutadorPaginas.get('/cerrar-sesion', protegerRuta, (req, res) => {
   res.render('cerrarSesion', { titulo: 'pagina de cerrar sesion' });
 });

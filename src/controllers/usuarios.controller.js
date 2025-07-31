@@ -2,26 +2,26 @@
 import { usuarioModel } from '../models/usuario.model.js';
 import bcrypt from 'bcrypt'; // Para hashear contraseñas
 import jwt from 'jsonwebtoken'; // Para manejar sesiones con tokens
+import dotenv from 'dotenv';
+dotenv.config();
 
-const JWT_SECRET = 'tu_clave_secreta'; // En producción, guardala en una variable de entorno
+// function protegerRutaCookie(req, res, next) {
+//     const token = req.cookies?.token;
 
-function verificarToken(req, res, next) {
-    const token = req.cookies?.token;
+//     if (!token) {
+//         return res.status(401).json({ mensaje: 'Acceso denegado. No se encontró el token.' });
+//     }
 
-    if (!token) {
-        return res.status(401).json({ mensaje: 'Acceso denegado. No se encontró el token.' });
-    }
-
-    try {
-        const verificado = jwt.verify(token, JWT_SECRET);
-        console.log("verificar token")
-        console.log(verificado)
-        req.usuario = verificado; // Guardamos los datos del token en la request
-        next();
-    } catch (error) {
-        res.status(401).json({ mensaje: 'Token inválido o expirado.' });
-    }
-}
+//     try {
+//         const verificado = jwt.verify(token, process.env.CLAVE_TOKEN);
+//         console.log("verificar token")
+//         console.log(verificado)
+//         req.usuario = verificado; // Guardamos los datos del token en la request
+//         next();
+//     } catch (error) {
+//         res.status(401).json({ mensaje: 'Token inválido o expirado.' });
+//     }
+// }
 
 async function obtenerTodosUsuarios(req, res) {
     try {
@@ -94,23 +94,35 @@ async function iniciarSesion(req, res) {
         const passwordValida = await bcrypt.compare(password, usuario.password);
         if (!passwordValida) return res.status(401).send('Credenciales inválidas');
 
-        const token = jwt.sign({ id: usuario._id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: usuario._id }, process.env.CLAVE_TOKEN, { expiresIn: '1h' });
 
         // Guardar token en cookie httpOnly
-        res.cookie('token', token, {
+        res.cookie('nombreTokenJwt', token, {
             // httpOnly: true,
             // secure: false, // Ponlo en true si usas HTTPS
             // maxAge: 3600000, // 1 hora
         });
 
+        res.json({ mensaje: 'Sesión iniciada' });
+    } catch (error) {
+        console.error('Error al iniciar sesión:', error.message);
+        res.status(500).send('Error interno');
+    }
+};
+
+async function iniciarSesionBD(req, res) {
+    try {
+        const { email, password } = req.body;
+        const usuario = await usuarioModel.findOne({ email });
+        
+        if (!usuario) return res.status(401).send('Credenciales inválidas');
+
+        const passwordValida = await bcrypt.compare(password, usuario.password);
+        if (!passwordValida) return res.status(401).send('Credenciales inválidas');
+
         
         // Guardar identificador del usuario en la sesión
         req.session.userId = usuario._id.toString();
-        // req.session.save(function(err) {
-        //     if (err) {
-        //         console.error('Error guardando sesión:', err);
-        //     }
-        // });
 
         res.json({ mensaje: 'Sesión iniciada' });
     } catch (error) {
@@ -120,17 +132,19 @@ async function iniciarSesion(req, res) {
 };
 
 async function cerrarSesion(req, res) {
-    res.clearCookie('token');
+    res.clearCookie('nombreTokenJwt'); // iniciarSesion
+    res.clearCookie('nombreTokenSesion'); // para iniciarSesionBD
     res.json({ mensaje: 'Sesión cerrada' });
 };
 
 export {
-    verificarToken,
+    // protegerRutaCookie,
     obtenerTodosUsuarios,
     obtenerUsuarioID,
     crearUsuario,
     actualizarUsuario,
     eliminarUsuario,
     iniciarSesion,
+    iniciarSesionBD,
     cerrarSesion
 };
