@@ -39,8 +39,8 @@
     const contenedor = document.getElementById("productos");
 
     fetch(
-        "http://localhost:8080/api/productos", {
-          method: "POST"
+        "http://localhost:4000/api/productos", {
+          method: "GET"
         })
       .then(res => res.json())
       .then(data => {
@@ -57,7 +57,7 @@
           // Botón dinámico
           const btn = div.querySelector("button");
           btn.addEventListener("click", () => {
-            fetch("http://localhost:8080/api/compras", {
+            fetch("http://localhost:4000/api/compras", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json"

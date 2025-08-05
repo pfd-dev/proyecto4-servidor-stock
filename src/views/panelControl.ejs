@@ -21,15 +21,14 @@
       <p>No hay productos disponibles.</p>
       <% } else if (estado==="ok" ) { %>
       <h2>Listado de Productos:</h2>
+
       <ul>
         <% productos.forEach(p=> { %>
         <li>
           <div id="producto-<%= p._id %>">
             <strong>
               <%= p.name %>
-            </strong> -
-            Precio: $<%= p.precio %> -
-            Cantidad: <%= p.cantidad %>
+            </strong> - Precio: $<%= p.precio %> - Cantidad: <%= p.cantidad %>
 
             <div class="botones-producto">
               <button class="btn-editar" data-id="<%= p._id %>">Editar</button>

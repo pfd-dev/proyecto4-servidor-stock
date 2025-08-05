@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <title><%= titulo %></title>
+  <%- include("components/head") %>
+</head>
+
+<body>
+  <%- include("components/menu") %>
+
+  <main>
+    <header>
+      <h1><%= titulo %></h1>
+    </header>
+
+    <% if (mensaje) { %>
+    <p style="color: red; text-align: center;"><%= mensaje %></p>
+    <% } %>
+
+    <table border="1" cellspacing="0" cellpadding="8" style="margin: auto;">
+      <thead>
+        <tr>
+          <th>ID de Sesión</th>
+          <th>UserID</th>
+          <th>Usuario (email)</th>
+          <th>Datos de Sesión</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% sesiones.forEach(s => { %>
+        <tr>
+          <td><%= s.sid %></td>
+          <td><%= s.userId || 'No definido' %></td>
+          <td><%= s.usuario?.email || 'Desconocido' %></td>
+          <td>
+            <pre><%= JSON.stringify(s.datos, null, 2) %></pre>
+          </td>
+          <td>
+            <form method="POST" action="/panel-sesiones/eliminar/<%= s.sid %>">
+              <button type="submit" style="color: red;">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </main>
+</body>
+
+</html>

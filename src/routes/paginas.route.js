@@ -1,13 +1,44 @@
 import express from 'express';
+import mongoose from 'mongoose';
+import MongoStore from 'connect-mongo';
 
+// Modelos
+import { usuarioModel } from '../models/usuario.model.js';
 import { productoModel } from '../models/productos.model.js';
 import { protegerRuta } from '../middlewares/middlewares.js';
 
+// Controladores
+import { damePaginaInicio, damePanelSesiones } from '../controllers/paginas.controller.js';
+
 const enrutadorPaginas = express.Router();
 
-enrutadorPaginas.get('/', (req, res) => {
-  res.render('index', { titulo: 'pagina de inicio' });
+enrutadorPaginas.get('/', damePaginaInicio);
+
+// NUEVA RUTA: panel de sesiones
+enrutadorPaginas.get('/panel-sesiones', damePanelSesiones);
+
+// Ruta para eliminar una sesión manualmente
+enrutadorPaginas.post('/panel-sesiones/eliminar/:sid', protegerRuta, async (req, res) => {
+  try {
+    const mongoStore = MongoStore.create({
+      mongoUrl: process.env.MONGODB_CONNECT_URI,
+      collectionName: 'sesiones'
+    });
+
+    mongoStore.destroy(req.params.sid, (err) => {
+      if (err) {
+        console.error('Error al eliminar sesión:', err);
+        return res.status(500).send('Error al eliminar la sesión');
+      }
+
+      res.redirect('/panel-sesiones');
+    });
+  } catch (error) {
+    console.error('Error al procesar eliminación:', error.message);
+    res.status(500).send('Error interno');
+  }
 });
+
 
 enrutadorPaginas.get('/panel-control', protegerRuta, async (req, res) => {
   try {

@@ -1,80 +1,51 @@
+// importaciones módulos y librerías nativos
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import MongoStore from 'connect-mongo';
-
+// importaciones módulos y librerías terceros
 import express from 'express';
-import createError from 'http-errors';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import session from 'express-session';
-
-dotenv.config();
-
-import { enrutadorPaginas } from './routes/paginas.route.js';
-import { enrutadorUsuarios } from './routes/usuarios.route.js';
-import { enrutadorProductos } from './routes/productos.route.js';
+// configuración
+import { configureCookieExpressSession } from './config/cookie-usuario-session.config.js';
+// middlewares
+import { middlewareExpressGlobalError } from './middlewares/middleware-express-global-errors.js';
+import { middlewareExpressHttpError } from './middlewares/middleware-express-http-errors.js';
+// rutas
+import { indexRouter } from './routes/index.router.js';
 
 // Configuración para obtener __dirname en ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// configuración de dotenv
+dotenv.config();
 
-// Inicialización de la aplicación Express
-const app = express();
-
-// Habilitar CORS para todas las rutas
-app.use(cors());
-
-app.use(express.json()); // Parseo de JSON en body
-app.use(express.urlencoded({ extended: false })); // Parseo de datos codificados en URL
-app.use(cookieParser()); // Parseo de cookies
-
-// Configuración de express-session
-app.use(session({
-  name: 'nombreTokenSesion',                        // nombre de la cookie de sesión
-  secret: process.env.CLAVE_SESSION,  // guárdar en .env
-  resave: false,                      // no volver a guardar si no hubo cambios
-  saveUninitialized: false,           // no guardar sesión vacía
-  cookie: {
-    maxAge: 3 * 60 * 1000,          // 3 minutos en milisegundos
-    httpOnly: true,
-    // secure: true,               // habilitar en HTTPS
-  },
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_CONNECT_URI,  // URL de tu base de datos MongoDB
-    collectionName: 'sesiones',       // Nombre de la colección en MongoDB
-    ttl: 60 * 5                       // Tiempo de vida en segundos (5 min)
-  }),
-}));
-
-// Configuración del motor de vistas y carpeta de vistas
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, '../public'))); // Servir archivos estáticos
+const app = express(); // Inicialización de la aplicación Express
 
 // Middlewares para manejo de solicitudes en modo desarrollo
 app.use(logger('dev'));
 
+// configuración de middlewares conexion de datos
+app.use(cors()); // Habilitar CORS
+app.use(express.json()); // Parseo de JSON en body
+app.use(express.urlencoded({ extended: false })); // Parseo de datos codificados en URL
+app.use(cookieParser()); // Parseo de cookies
+
+// Configura cookie sesion de express-session
+app.use(configureCookieExpressSession());
+
+// configuración de vistas y archivos estáticos
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, '../public')));
+
 // Rutas principales de la aplicación
-app.use('/', enrutadorPaginas);
-app.use('/api/usuarios', enrutadorUsuarios);
-app.use('/api/productos', enrutadorProductos);
+app.use('/', indexRouter);
 
 // Middleware para capturar errores 404
-app.use((req, res, next) => {
-  next(createError(404));
-});
+app.use(middlewareExpressHttpError);
 
 // Middleware para manejo general de errores
-app.use((err, req, res, next) => {
-  // Define variables locales para renderizar el error
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // Renderiza la vista de error con el código correspondiente
-  res.status(err.status || 500);
-  res.render('error');
-});
+app.use(middlewareExpressGlobalError);
 
 export default app;
