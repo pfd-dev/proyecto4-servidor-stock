@@ -1,6 +1,9 @@
 // Modelos
 import { usuarioModel } from '../models/usuario.model.js';
 import { productoModel } from '../models/productos.model.js';
+import { usuarioSessionModel } from '../models/usuarioSession.model.js';
+import mongoose from 'mongoose';
+import MongoStore from 'connect-mongo';
 
 async function damePaginaInicio(req, res) {
     res.render(
@@ -15,7 +18,7 @@ async function damePaginaInicio(req, res) {
     );
 }
 
-async function damePanelSesiones(req, res) {
+async function damePaginaPanelSesiones(req, res) {
     try {
         const mongoStore = MongoStore.create({
             mongoUrl: process.env.MONGODB_CONNECT_URI,
@@ -42,9 +45,7 @@ async function damePanelSesiones(req, res) {
             const usuarios = usuarioModel.find();
             for (let i = 0; i < sesiones.length; i++) {
                 const element = sesiones[i].userId;
-
             }
-            console.log(sesiones)
 
             // const sesionesConUsuarios = Object.entries(sesiones).map(([sid, datos]) => {
             //   const usuario = usuarios.find(u => u._id.toString() === datos.userId);
@@ -56,26 +57,53 @@ async function damePanelSesiones(req, res) {
             //   };
             // });
 
+            const resultado = await usuarioSessionModel.find()
+            const usuariosResultado = await usuarioModel.find({ _id: { $in: ids } });
+
+            console.log("resultado");
+            console.log(resultado);
+            console.log("resultado");
+            console.log(usuariosResultado);
+
             res.render('panelSesiones', {
                 titulo: 'Panel de sesiones',
                 // sesiones: sesionesConUsuarios,
                 sesiones: [],
-                mensaje: null
+                mensaje: null,
+                usuarios: usuariosResultado
             });
         });
 
     } catch (error) {
-        console.error('Error al mostrar el panel de sesiones:', error.message);
         res.status(500).render('panelSesiones', {
             titulo: 'Panel de sesiones',
             sesiones: [],
-            mensaje: 'Error interno del servidor'
+            mensaje: 'Error interno del servidor' + error.message
         });
     }
+}
 
+async function damePaginaPanelControl(req, res) {
+    try {
+        const productos = await productoModel.find();
+
+        res.render('panelControl', {
+            titulo: 'Página de Panel de control',
+            productos: productos,
+            estado: productos.length === 0 ? 'vacio' : 'ok'
+        });
+    } catch (error) {
+        console.error('Error al obtener productos:', error.message);
+        res.render('panelControl', {
+            titulo: 'Página de Panel de control',
+            productos: [],
+            estado: 'error'
+        });
+    }
 }
 
 export {
     damePaginaInicio,
-    damePanelSesiones
+    damePaginaPanelSesiones,
+    damePaginaPanelControl
 }

@@ -37,7 +37,7 @@
       const mensaje = document.getElementById('mensaje');
 
       try {
-        const response = await fetch('/api/usuarios/loginToken', {
+        const response = await fetch('/api/usuarios/iniciarSesionJWT', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

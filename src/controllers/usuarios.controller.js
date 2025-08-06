@@ -1,61 +1,48 @@
-// usuario.route.js
-import { usuarioModel } from '../models/usuario.model.js';
 import bcrypt from 'bcrypt'; // Para hashear contraseñas
 import jwt from 'jsonwebtoken'; // Para manejar sesiones con tokens
-import dotenv from 'dotenv';
-dotenv.config();
 
-// function protegerRutaCookie(req, res, next) {
-//     const token = req.cookies?.token;
-
-//     if (!token) {
-//         return res.status(401).json({ mensaje: 'Acceso denegado. No se encontró el token.' });
-//     }
-
-//     try {
-//         const verificado = jwt.verify(token, process.env.CLAVE_TOKEN);
-//         console.log("verificar token")
-//         console.log(verificado)
-//         req.usuario = verificado; // Guardamos los datos del token en la request
-//         next();
-//     } catch (error) {
-//         res.status(401).json({ mensaje: 'Token inválido o expirado.' });
-//     }
-// }
+// Módulos
+import { usuarioModel } from '../models/usuario.model.js';
 
 async function obtenerTodosUsuarios(req, res) {
     try {
         const usuarios = await usuarioModel.find();
+
         res.json(usuarios);
     } catch (error) {
-        console.error('Error al obtener usuarios:', error.message);
-        res.status(500).send('Error interno');
+        res.status(500).send('Error interno: Error al obtener usuarios:', error.message);
     }
 };
 
 async function obtenerUsuarioID(req, res) {
     try {
         const usuario = await usuarioModel.findById(req.params.id);
-        if (!usuario) return res.status(404).send('Usuario no encontrado');
+
+        if (!usuario) {
+            return res.status(404).send('Usuario no encontrado.');
+        }
+
         res.json(usuario);
     } catch (error) {
-        console.error('Error al obtener usuario por ID:', error.message);
-        res.status(500).send('Error interno');
+        console.error();
+        res.status(500).send('Error interno: Error al obtener usuario por ID:', error.message);
     }
 };
 
 async function crearUsuario(req, res) {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
         const nuevoUsuario = new usuarioModel({
             ...req.body,
             password: hashedPassword
         });
+
         const resultado = await nuevoUsuario.save();
+
         res.status(201).json(resultado);
     } catch (error) {
-        console.error('Error al crear usuario:', error.message);
-        res.status(400).send('Datos inválidos');
+        res.status(400).send('Datos interno: Error al crear usuario:', error.message);
     }
 };
 
@@ -64,87 +51,109 @@ async function actualizarUsuario(req, res) {
         if (req.body.password) {
             req.body.password = await bcrypt.hash(req.body.password, 10);
         }
+
         const actualizado = await usuarioModel.findByIdAndUpdate(req.params.id, req.body);
-        if (!actualizado) return res.status(404).send('Usuario no encontrado');
+
+        if (!actualizado) {
+            return res.status(404).send('Datos inválidos: Usuario no encontrado.');
+        }
+
         res.json(actualizado);
     } catch (error) {
-        console.error('Error al actualizar usuario:', error.message);
-        res.status(400).send('Datos inválidos');
+        res.status(400).send('Datos interno: Error al actualizar usuario:', error.message);
     }
 };
 
 async function eliminarUsuario(req, res) {
     try {
         const eliminado = await usuarioModel.findByIdAndDelete(req.params.id);
-        if (!eliminado) return res.status(404).send('Usuario no encontrado');
+
+        if (!eliminado) {
+            return res.status(404).send('Datos inválidos: Usuario no encontrado.');
+        }
+
         res.json(eliminado);
     } catch (error) {
-        console.error('Error al eliminar usuario:', error.message);
-        res.status(500).send('Error interno');
+        res.status(500).send('Error interno: Error al eliminar usuario:', error.message);
     }
 };
 
-async function iniciarSesion(req, res) {
+async function iniciarSesionJWT(req, res) {
     try {
         const { email, password } = req.body;
         const usuario = await usuarioModel.findOne({ email });
-        
-        if (!usuario) return res.status(401).send('Credenciales inválidas');
+
+        if (!usuario) return res.status(401).send('Credenciales inválidas.');
 
         const passwordValida = await bcrypt.compare(password, usuario.password);
         if (!passwordValida) return res.status(401).send('Credenciales inválidas');
 
-        const token = jwt.sign({ id: usuario._id }, process.env.CLAVE_TOKEN, { expiresIn: '1h' });
+        const token = jwt.sign(
+            { id: usuario.email },
+            process.env.CLAVE_TOKEN_JWT,
+            { expiresIn: '10m' }    // 10 minutos
+        );
 
-        // Guardar token en cookie httpOnly
-        res.cookie('nombreTokenJwt', token, {
-            // httpOnly: true,
-            // secure: false, // Ponlo en true si usas HTTPS
-            // maxAge: 3600000, // 1 hora
+        res.cookie('tokenUsuario', token, {
+            httpOnly: true,
+            maxAge: 10 * 60 * 1000 // 10 minutos
         });
 
-        res.json({ mensaje: 'Sesión iniciada' });
+        res.json({ mensaje: 'Sesión iniciada con JWT' });
     } catch (error) {
-        console.error('Error al iniciar sesión:', error.message);
-        res.status(500).send('Error interno');
+        console.error(error);
+        res.status(500).send('Error interno: Error al iniciar sesión:', error);
     }
 };
 
-async function iniciarSesionBD(req, res) {
+async function iniciarSesionExpressSession(req, res) {
     try {
         const { email, password } = req.body;
         const usuario = await usuarioModel.findOne({ email });
-        
-        if (!usuario) return res.status(401).send('Credenciales inválidas');
+
+        if (!usuario) {
+            return res.status(401).send('Credenciales inválidas');
+        }
 
         const passwordValida = await bcrypt.compare(password, usuario.password);
-        if (!passwordValida) return res.status(401).send('Credenciales inválidas');
 
-        
-        // Guardar identificador del usuario en la sesión
-        req.session.userId = usuario._id.toString();
+        if (!passwordValida) {
+            return res.status(401).send('Credenciales inválidas');
+        }
+
+        req.session.usuarioExpressSession = { usuario: usuario.email };
 
         res.json({ mensaje: 'Sesión iniciada' });
     } catch (error) {
-        console.error('Error al iniciar sesión:', error.message);
-        res.status(500).send('Error interno');
+        res.status(500).send('Error interno: Error al iniciar sesión:', error.message);
     }
 };
 
 async function cerrarSesion(req, res) {
-    res.clearCookie('nombreTokenJwt'); // iniciarSesion
-    res.clearCookie('nombreTokenSesion'); // para iniciarSesionBD
-    res.json({ mensaje: 'Sesión cerrada' });
+    if (req.session && req.session.usuarioExpressSession) {
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).send('Error interno: Error al cerrar sesión');
+            }
+            res.clearCookie('nombreTokenSesionUsuario');
+            res.send('Sesión cerrada correctamente');
+        });
+    }
+
+    if (req.cookies.tokenUsuario) {
+        res.clearCookie('tokenUsuario');
+    }
+
+    res.send('Sesión cerrada');
 };
 
 export {
-    // protegerRutaCookie,
     obtenerTodosUsuarios,
     obtenerUsuarioID,
     crearUsuario,
     actualizarUsuario,
     eliminarUsuario,
-    iniciarSesion,
-    iniciarSesionBD,
+    iniciarSesionJWT,
+    iniciarSesionExpressSession,
     cerrarSesion
 };

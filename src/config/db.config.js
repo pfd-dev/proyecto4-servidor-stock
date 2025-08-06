@@ -10,4 +10,4 @@ async function conectarBBDD(urlDataBase) {
     }
 }
 
-export default conectarBBDD;
+export { conectarBBDD };

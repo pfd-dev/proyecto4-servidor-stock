@@ -37,7 +37,7 @@
       const mensaje = document.getElementById('mensaje');
 
       try {
-        const response = await fetch('/api/usuarios/loginSesion', {
+        const response = await fetch('/api/usuarios/iniciarSesionExpressSession', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -1,90 +1,50 @@
-import http from 'http';
+// importaciones módulos y librerías nativos
+import { createServer } from 'http';
 
-import debugLib from 'debug';
+// importaciones módulos y librerías terceros
 import dotenv from 'dotenv';
+import createDebug from 'debug';
 
+// configuración
+import { normalizePort, onError, onListening } from './server-helpers.js';
+
+// importaciones de configuración de base de datos
+import { conectarBBDD } from './../src/config/db.config.js';
+
+// importación de la aplicación Express
 import app from '../src/app.js';
-import conectarBBDD from '../src/config/db.config.js';
 
+// Configuración del debug
+const debug = createDebug('enitime:server');
+
+// Configura dotenv al inicio
 dotenv.config();
 
-// Inicialización del módulo de depuración
-const debug = debugLib('appback:server');
-
-// Obtener el puerto desde las variables de entorno o usar 3000 por defecto
+// Obtiene el puerto desde las variables de entorno y lo configura en Express
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-// Crear el servidor HTTP usando la aplicación Express
-const server = http.createServer(app);
+// Crea el servidor HTTP
+const server = createServer(app);
 
 iniciarAplicacion();
 
 // Función que inicia toda la aplicación (servidor + base de datos)
 async function iniciarAplicacion() {
-  console.log('Aplicación: Iniciando aplicación...');
+    console.log('Aplicación: Iniciando aplicación servidor...');
 
-  try {
-    console.log('Aplicación: Iniciando conexión a la base de datos...');
-    await conectarBBDD(process.env.MONGODB_CONNECT_URI || `mongodb://localhost:27017/miBBDD`);
-    console.log('Aplicación: Base de datos conectada correctamente');
+    try {
+        console.log('Aplicación: Iniciando conexión a la base de datos...');
+        await conectarBBDD(process.env.MONGODB_CONNECT_URI || `mongodb://localhost:27017/miBBDD`);
+        console.log('Aplicación: Base de datos conectada correctamente');
 
-    server.listen(port);
-    console.log(`Aplicación: Servidor levantando en puerto ${port}.`);
+        console.log('Aplicación: Iniciando servidor...');
+        server.listen(port);
 
-    server.on('error', onError);
-    server.on('listening', onListening);
-  } catch (error) {
-    console.error('Error al iniciar la aplicación:', error);
-    process.exit(1); // Salida por error
-  }
-}
-
-// Función para normalizar el valor del puerto (puede ser número o cadena)
-function normalizePort(val) {
-  const port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    return val;
-  }
-
-  if (port >= 0) {
-    return port;
-  }
-
-  return false;
-}
-
-// Manejador de errores del servidor HTTP
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  const bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Puerto ' + port;
-
-  switch (error.code) {
-    case 'EACCES':
-      console.error(`${bind} requiere privilegios elevados`);
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(`${bind} ya está en uso`);
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-// Manejador cuando el servidor comienza a escuchar exitosamente
-function onListening() {
-  const addr = server.address();
-  
-  const bind = typeof addr === 'string'
-    ? 'Pipe ' + addr
-    : 'Puerto ' + addr.port;
-  debug(`Escuchando en ${bind}`);
+        server.on('error', (error) => onError(error, port));
+        server.on('listening', () => onListening(server, debug));
+    } catch (error) {
+        console.error('Error al iniciar la aplicación:', error);
+        process.exit(1); // Salida por error
+    }
 }

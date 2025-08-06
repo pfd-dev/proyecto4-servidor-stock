@@ -9,6 +9,7 @@ const indexRouter = express.Router();
 
 // Rutas principales de la aplicación
 indexRouter.use('/api/productos', enrutadorProductos);
+indexRouter.use('/api/productos', enrutadorProductos);
 indexRouter.use('/api/usuarios', enrutadorUsuarios);
 indexRouter.use('/api/compras', enrutadorCompras);
 indexRouter.use('/', enrutadorPaginas);

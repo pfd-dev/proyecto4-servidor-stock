@@ -1,11 +1,9 @@
-import dotenv from 'dotenv';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 
 
 export function configureCookieExpressSession() {
-    dotenv.config();
-    const nombreSesion = 'nombreTokenSesion';
+    const nombreSesion = 'nombreTokenSesionUsuario';
     const claveSecreta = process.env.CLAVE_SESSION;
 
     const conexionBaseDatos = process.env.MONGODB_CONNECT_URI;

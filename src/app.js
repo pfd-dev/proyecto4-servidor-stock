@@ -1,24 +1,25 @@
 // importaciones módulos y librerías nativos
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
+
 // importaciones módulos y librerías terceros
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import dotenv from 'dotenv';
 import cors from 'cors';
+
 // configuración
-import { configureCookieExpressSession } from './config/cookie-usuario-session.config.js';
+// import { configureCookieExpressSession } from './config/cookie-usuario-session.config.js';
+
 // middlewares
-import { middlewareExpressGlobalError } from './middlewares/middleware-express-global-errors.js';
-import { middlewareExpressHttpError } from './middlewares/middleware-express-http-errors.js';
+import { middlewareExpressGlobalError } from './middlewares/middlewares-express/middleware-express-global-errors.js';
+import { middlewareExpressHttpError } from './middlewares/middlewares-express/middleware-express-http-errors.js';
+
 // rutas
 import { indexRouter } from './routes/index.router.js';
 
 // Configuración para obtener __dirname en ES Modules
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// configuración de dotenv
-dotenv.config();
 
 const app = express(); // Inicialización de la aplicación Express
 
@@ -32,7 +33,7 @@ app.use(express.urlencoded({ extended: false })); // Parseo de datos codificados
 app.use(cookieParser()); // Parseo de cookies
 
 // Configura cookie sesion de express-session
-app.use(configureCookieExpressSession());
+// app.use(configureCookieExpressSession());
 
 // configuración de vistas y archivos estáticos
 app.set('view engine', 'ejs');
