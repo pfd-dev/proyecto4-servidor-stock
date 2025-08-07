@@ -1,5 +1,6 @@
 import express from "express";
 import { productoModel } from "../models/productos.model.js";
+import { upload } from "../middlewares/middleware-subidaArchivos.js";
 
 const enrutadorProductos = express.Router();
 
@@ -36,14 +37,16 @@ enrutadorProductos.get("/:id", async (req, res) => {
 });
 
 // Crear un nuevo producto
-enrutadorProductos.post("/", async (req, res) => {
+enrutadorProductos.post("/", upload.fields([{ name: 'nueva-image', maxCount: 1 }, { name: 'nueva-images', maxCount: 10 }]), async (req, res) => {
     try {
-        const { nombre, cantidad, precio } = req.body;
+        const { name, cantidad, precio } = req.body;
 
         const productoNuevo = new productoModel({
-            name: nombre,
+            name: name,
             cantidad,
-            precio
+            precio,
+            imagen: req.files['nueva-image']?.[0]?.filename || null,
+            imagenes: req.files['nueva-images']?.map(file => file.filename) || []
         });
 
         const productoGuardado = await productoNuevo.save();

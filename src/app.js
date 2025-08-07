@@ -9,7 +9,7 @@ import logger from 'morgan';
 import cors from 'cors';
 
 // configuración
-// import { configureCookieExpressSession } from './config/cookie-usuario-session.config.js';
+import { configureCookieExpressSession } from './config/cookie-usuario-session.config.js';
 
 // middlewares
 import { middlewareExpressGlobalError } from './middlewares/middlewares-express/middleware-express-global-errors.js';
@@ -28,12 +28,12 @@ app.use(logger('dev'));
 
 // configuración de middlewares conexion de datos
 app.use(cors()); // Habilitar CORS
-app.use(express.json()); // Parseo de JSON en body
-app.use(express.urlencoded({ extended: false })); // Parseo de datos codificados en URL
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser()); // Parseo de cookies
 
 // Configura cookie sesion de express-session
-// app.use(configureCookieExpressSession());
+app.use(configureCookieExpressSession());
 
 // configuración de vistas y archivos estáticos
 app.set('view engine', 'ejs');

@@ -1,11 +1,8 @@
 import mongoose from "mongoose";
 
 const usuarioSessionSchema = mongoose.Schema(
-    {
-        // idSession: {
-        //     type: String,
-        // },
-    }
+    {},
+    { strict: false }
 );
 
 const usuarioSessionModel = mongoose.model("sesiones", usuarioSessionSchema)

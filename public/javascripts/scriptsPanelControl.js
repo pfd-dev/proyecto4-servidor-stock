@@ -6,22 +6,25 @@ function main() {
             formCrear.addEventListener('submit', async (event) => {
                 event.preventDefault();
 
-                const nombre = document.getElementById('nuevo-nombre').value;
-                const precio = document.getElementById('nuevo-precio').value;
-                const cantidad = document.getElementById('nueva-cantidad').value;
-                
+                // const nombre = document.getElementById('nuevo-nombre').value;
+                // const precio = document.getElementById('nuevo-precio').value;
+                // const cantidad = document.getElementById('nueva-cantidad').value;
+
+                const formData = new FormData(formCrear);
+
                 try {
                     const response = await fetch('/api/productos', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            nombre: nombre,
-                            precio: parseFloat(precio),
-                            cantidad: parseInt(cantidad)
-                        })
+                        // headers: {
+                        // 'Content-Type': 'application/json',
+                        // 'Accept': 'application/json'
+                        // },
+                        // body: JSON.stringify({
+                        //     nombre: nombre,
+                        //     precio: parseFloat(precio),
+                        //     cantidad: parseInt(cantidad),
+                        // })
+                        body: formData
                     });
 
                     if (response.ok) {
@@ -41,12 +44,14 @@ function main() {
         // Event listeners para los formularios de edición
         document.addEventListener('submit', async (event) => {
             event.preventDefault();
-            
+
             if (event.target.hasAttribute('data-id')) {
                 const id = event.target.getAttribute('data-id');
                 const nombre = document.getElementById(`nombre-${id}`).value;
                 const precio = document.getElementById(`precio-${id}`).value;
                 const cantidad = document.getElementById(`cantidad-${id}`).value;
+                const image = document.getElementsByName('actualizo-image').value;
+                const images = document.getElementsByName('actualizo-images').value;
 
                 try {
                     const response = await fetch(`/api/productos/${id}`, {
@@ -58,17 +63,19 @@ function main() {
                         body: JSON.stringify({
                             nombre: nombre,
                             precio: parseFloat(precio),
-                            cantidad: parseInt(cantidad)
+                            cantidad: parseInt(cantidad),
+                            image,
+                            images
                         })
                     });
 
-                    if (response.ok) {
-                        alert('Producto actualizado exitosamente');
-                        location.reload(); // Recargar la página para mostrar los cambios
-                    } else {
-                        const errorText = await response.text();
-                        alert('Error al actualizar producto: ' + errorText);
-                    }
+                    // if (response.ok) {
+                    //     alert('Producto actualizado exitosamente');
+                    //     location.reload(); // Recargar la página para mostrar los cambios
+                    // } else {
+                    //     const errorText = await response.text();
+                    //     alert('Error al actualizar producto: ' + errorText);
+                    // }
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Error de conexión al actualizar producto');

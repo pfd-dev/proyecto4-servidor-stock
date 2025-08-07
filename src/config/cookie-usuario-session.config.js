@@ -1,5 +1,7 @@
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 export function configureCookieExpressSession() {
@@ -23,7 +25,7 @@ export function configureCookieExpressSession() {
             store: MongoStore.create({
                 mongoUrl: conexionBaseDatos,
                 collectionName: nombreColeccionBD,
-                ttl: 60 * 5, // Tiempo de vida en segundos (5 min)
+                ttl: 60 * 1, // Tiempo de vida en segundos (5 min)
             }),
         })
     );

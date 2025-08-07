@@ -20,58 +20,22 @@ async function damePaginaInicio(req, res) {
 
 async function damePaginaPanelSesiones(req, res) {
     try {
-        const mongoStore = MongoStore.create({
-            mongoUrl: process.env.MONGODB_CONNECT_URI,
-            collectionName: 'sesiones'
+        const sesiones = await usuarioSessionModel.find();
+
+        const usuariosActivos = sesiones.map(s => {
+            const datosSesion = JSON.parse(s.session);
+            return ({
+                nombre: datosSesion.usuarioExpressSession?.usuarioNombre || 'Desconocido',
+                email: datosSesion.usuarioExpressSession?.usuarioEmail || 'Desconocido',
+            })
         });
 
-        mongoStore.all(async (err, sesiones) => {
-            if (err) {
-                console.error('Error al obtener sesiones:', err);
-                return res.status(500).render('panelSesiones', {
-                    titulo: 'Panel de sesiones',
-                    sesiones: [],
-                    mensaje: 'Error al cargar las sesiones'
-                });
-            }
-
-            // Obtener info de usuarios para cada sesión (si existe userId)
-            const ids = Object.values(sesiones)
-                .map(s => s.userId)
-                .filter(Boolean)
-                .map(id => new mongoose.Types.ObjectId(id));
-
-
-            const usuarios = usuarioModel.find();
-            for (let i = 0; i < sesiones.length; i++) {
-                const element = sesiones[i].userId;
-            }
-
-            // const sesionesConUsuarios = Object.entries(sesiones).map(([sid, datos]) => {
-            //   const usuario = usuarios.find(u => u._id.toString() === datos.userId);
-            //   return {
-            //     sid,
-            //     userId: datos.userId || null,
-            //     usuario,
-            //     datos
-            //   };
-            // });
-
-            const resultado = await usuarioSessionModel.find()
-            const usuariosResultado = await usuarioModel.find({ _id: { $in: ids } });
-
-            console.log("resultado");
-            console.log(resultado);
-            console.log("resultado");
-            console.log(usuariosResultado);
-
-            res.render('panelSesiones', {
-                titulo: 'Panel de sesiones',
-                // sesiones: sesionesConUsuarios,
-                sesiones: [],
-                mensaje: null,
-                usuarios: usuariosResultado
-            });
+        res.render('panelSesiones', {
+            titulo: 'Panel de sesiones',
+            // sesiones: sesionesConUsuarios,
+            sesiones: [],
+            mensaje: null,
+            usuarios: usuariosActivos
         });
 
     } catch (error) {

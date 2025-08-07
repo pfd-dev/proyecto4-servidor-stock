@@ -121,7 +121,7 @@ async function iniciarSesionExpressSession(req, res) {
             return res.status(401).send('Credenciales inválidas');
         }
 
-        req.session.usuarioExpressSession = { usuario: usuario.email };
+        req.session.usuarioExpressSession = { usuarioNombre: usuario.name, usuarioEmail: usuario.email };
 
         res.json({ mensaje: 'Sesión iniciada' });
     } catch (error) {

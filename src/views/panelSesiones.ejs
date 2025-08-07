@@ -21,28 +21,24 @@
     <table border="1" cellspacing="0" cellpadding="8" style="margin: auto;">
       <thead>
         <tr>
-          <th>ID de Sesión</th>
-          <th>UserID</th>
-          <th>Usuario (email)</th>
-          <th>Acción</th>
+          <th>nombre</th>
+          <th>email</th>
         </tr>
       </thead>
       <tbody>
         <% usuarios.forEach(usuario => { %>
         <tr>
-          <td><%= usuario._id %></td>
-          <td><%= usuario.name || 'No definido' %></td>
-          <td><%= usuario.email || 'Desconocido' %></td>
-          <td>
-            <form method="POST" action="/panel-sesiones/eliminar/<%= usuario._id %>">
-              <button type="submit" style="color: red;">Eliminar</button>
-            </form>
-          </td>
+          <td><%= usuario.nombre %></td>
+          <td><%= usuario.email %></td>
         </tr>
         <% }); %>
       </tbody>
     </table>
+    <%= usuarios._ida %>
   </main>
+
+  <script>
+  </script>
 </body>
 
 </html>
